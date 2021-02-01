@@ -1,6 +1,9 @@
 const mysql = require ('mysql2');
 require('dotenv').config();
-const faker = require('faker');
+// const faker = require('faker');
+const express = require('express');
+const app = express();
+const cors = require('cors');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -10,8 +13,10 @@ const connection = mysql.createConnection({
 });
 
 
+const PORT = process.env.PORT || 8080;
+
 // Selcting data
-// let q = 'SELECT COUNT(*) AS total FROM users';
+let q = 'SELECT COUNT(*) AS total FROM users';
 // -----
 
 // let q = 'SELECT DATE_FORMAT(MIN(created_at), "%M %D %Y") AS "earliest date" FROM users';
@@ -31,15 +36,15 @@ const connection = mysql.createConnection({
 //-----
 
 //CASE
-let q ='SELECT CASE WHEN email LIKE "%@gmail.com" THEN "gmail" WHEN email LIKE "%@yahoo.com" THEN "yahoo" WHEN email LIKE "%@hotmail.com" THEN "hotmail" ELSE "other" end AS provider, Count(*) AS total_users FROM  users GROUP  BY provider ORDER  BY total_users DESC'
+// let q ='SELECT CASE WHEN email LIKE "%@gmail.com" THEN "gmail" WHEN email LIKE "%@yahoo.com" THEN "yahoo" WHEN email LIKE "%@hotmail.com" THEN "hotmail" ELSE "other" end AS provider, Count(*) AS total_users FROM  users GROUP  BY provider ORDER  BY total_users DESC'
 
-
-
+let bank;
 
 connection.query(
     q,
     function(err, results,fields){
         if(err) throw err;
+        bank = results;
         console.log(results);
     }
 );
@@ -83,4 +88,23 @@ connection.query(
 //     );
 
 
-connection.end();
+// connection.end();
+
+let whitelist = ['http://localhost:3000'];
+let corsOptions = {
+    origin: (origin, callback)=>{
+        if(whitelist.indexOf(origin) !== -1){
+            callback(null, true)
+        } else{
+            callback(new Error('Not Allowed by CORS'))
+        }
+    }
+};
+
+app.get("/", cors(corsOptions), (req, res)=>{
+    res.send(bank);
+});
+
+app.listen(PORT, function(){
+    console.log("Live on Port " + PORT);
+});

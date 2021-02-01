@@ -1,7 +1,17 @@
 import logo from './logo.svg';
 import './App.css';
+import {BrowserRouter as Route} from 'react-router-dom';
+const axios = require('axios');
 
 function App() {
+
+  axios.get('http://localhost:8080/')
+      .then(results =>{
+        console.log(results)
+      })
+      .catch(error =>{
+        console.log(error)
+      });
   return (
     <div className="App">
       <header className="App-header">
@@ -18,6 +28,7 @@ function App() {
           Learn React
         </a>
       </header>
+      <Route exact path='/'/>
     </div>
   );
 }
